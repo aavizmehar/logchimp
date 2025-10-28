@@ -88,7 +88,6 @@ useHead({
     },
   ],
 });
-
 defineOptions({
   name: "Homepage",
 });

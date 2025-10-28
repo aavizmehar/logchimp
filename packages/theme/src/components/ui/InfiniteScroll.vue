@@ -18,18 +18,16 @@
         </client-error>
       </slot>
     </template>
-      <div ref="infiniteTrigger" aria-hidden="true" style="height:1px;" />
   </div>
 </template>
 <script setup lang="ts">
-import { ref, watch, computed, onMounted, nextTick } from "vue";
+import { ref, watch, computed, onMounted } from "vue";
 import { useInfiniteScroll } from "@vueuse/core";
 
 // components
 import ClientError from "./ClientError.vue";
 import LoaderContainer from "./LoaderContainer.vue";
 
-const infiniteTrigger = ref<HTMLElement | null>(null);
 export type InfiniteScrollStateType =
   | "LOADING"
   | "LOADED"
@@ -85,22 +83,15 @@ function executeInfiniteScroll() {
   props.onInfinite();
 }
 
-useInfiniteScroll(infiniteTrigger, executeInfiniteScroll, {
+useInfiniteScroll(window,executeInfiniteScroll, {
   distance: props.distance,
   direction: "bottom",
-  canLoadMore: () =>
-    props.canLoadMore && props.state !== "COMPLETED" && props.state !== "ERROR",
+  canLoadMore: () => !noMoreResults.value || props.state !== "ERROR",
 });
 
 onMounted(async () => {
-  await nextTick();
-  const triggerEl = infiniteTrigger.value;
-  if (!triggerEl) return;
-
   const viewportHeight = window.innerHeight;
-  const rect = triggerEl.getBoundingClientRect();
-
-  if (viewportHeight < 200 || rect.top < viewportHeight) {
+  if (viewportHeight < 200) {
     executeInfiniteScroll();
   }
 });
